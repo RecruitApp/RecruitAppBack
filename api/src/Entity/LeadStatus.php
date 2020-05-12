@@ -45,6 +45,7 @@ class LeadStatus
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Lead", mappedBy="status")
+     * @Groups({"lead_status_read", "lead_status_write", "lead_status_patch_read", "lead_status_patch_write"})
      */
     private $leads;
 
