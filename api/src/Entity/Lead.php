@@ -58,6 +58,17 @@ class Lead
      */
     private $salaryClaim;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\LeadStatus", inversedBy="leads")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $status;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="leads")
+     */
+    private $applicant;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -155,6 +166,30 @@ class Lead
     public function setSalaryClaim(?float $salaryClaim): self
     {
         $this->salaryClaim = $salaryClaim;
+
+        return $this;
+    }
+
+    public function getStatus(): ?LeadStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?LeadStatus $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getApplicant(): ?User
+    {
+        return $this->applicant;
+    }
+
+    public function setApplicant(?User $applicant): self
+    {
+        $this->applicant = $applicant;
 
         return $this;
     }
