@@ -3,7 +3,10 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiProperty;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
  * @ApiResource()
@@ -60,7 +63,7 @@ class Lead
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\LeadStatus", inversedBy="leads")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $status;
 
@@ -68,6 +71,24 @@ class Lead
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="leads")
      */
     private $applicant;
+
+    /**
+     * @var MediaObject|null
+     *
+     * @ORM\ManyToOne(targetEntity=MediaObject::class)
+     * @ORM\JoinColumn(nullable=true)
+     * @ApiProperty(iri="http://schema.org/image")
+     */
+    public $image;
+
+    /**
+     * @var MediaObject|null
+     *
+     * @ORM\ManyToOne(targetEntity=MediaObject::class)
+     * @ORM\JoinColumn(nullable=true)
+     * @ApiProperty(iri="http://schema.org/image")
+     */
+    public $cv;
 
     public function getId(): ?int
     {
@@ -193,4 +214,40 @@ class Lead
 
         return $this;
     }
+
+    /**
+     * @return MediaObject|null
+     */
+    public function getImage(): ?MediaObject
+    {
+        return $this->image;
+    }
+
+    /**
+     * @param MediaObject|null $image
+     */
+    public function setImage(?MediaObject $image): void
+    {
+        $this->image = $image;
+    }
+
+    /**
+     * @return MediaObject|null
+     */
+    public function getCv(): ?MediaObject
+    {
+        return $this->cv;
+    }
+
+    /**
+     * @param MediaObject|null $cv
+     */
+    public function setCv(?MediaObject $cv): void
+    {
+        $this->cv = $cv;
+    }
+
+
+
+
 }
