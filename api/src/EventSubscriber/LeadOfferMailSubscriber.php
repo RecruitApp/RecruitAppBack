@@ -4,7 +4,7 @@
 namespace App\EventSubscriber;
 
 use ApiPlatform\Core\EventListener\EventPriorities;
-use App\Entity\Lead;
+use App\Entity\Proposal;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
@@ -28,18 +28,18 @@ final class LeadOfferMailSubscriber implements EventSubscriberInterface
 
     public function sendMail(ViewEvent $event): void
     {
-        $lead = $event->getControllerResult();
+        $proposal = $event->getControllerResult();
         $method = $event->getRequest()->getMethod();
 
-        if (!$lead instanceof Lead || Request::METHOD_POST !== $method) {
+        if (!$proposal instanceof Proposal || Request::METHOD_POST !== $method) {
             return;
         }
-        $candidateMail = $lead->getEmail();
+        $applicantMail = $proposal->getApplicant()->getEmail();
 
         $message = (new \Swift_Message('Recruit App rh : invation pour l\'offre'))
             ->setFrom('recruitapprh@gmail.com')
-            ->setTo($candidateMail)
-            ->setBody(sprintf('The offer #%d has been added.', $lead->getId()));
+            ->setTo($applicantMail)
+            ->setBody(sprintf('The offer #%d has been added.', $proposal->getId()));
 
         $this->mailer->send($message);
     }
