@@ -35,11 +35,14 @@ final class LeadOfferMailSubscriber implements EventSubscriberInterface
             return;
         }
         $applicantMail = $proposal->getApplicant()->getEmail();
+        $tokenOffer = $proposal->getOffer()->getToken();
+        $proposal->setToken($tokenOffer);
 
-        $message = (new \Swift_Message('Recruit App rh : invation pour l\'offre'))
+        $message = (new \Swift_Message('Recruit App rh : invitation pour l\'offre'))
             ->setFrom('recruitapprh@gmail.com')
             ->setTo($applicantMail)
-            ->setBody(sprintf('The offer #%d has been added.', $proposal->getId()));
+            ->setBody(sprintf('Nous vous proposons de postuler pour notre offre. Pour celà il suffit de renseigner
+             le token : %s dans le formulaire d\'inscription disponible à cette adresse : %s/%s', $tokenOffer, 'http://localhost:8443/verifyOfferParticipant', $tokenOffer));
 
         $this->mailer->send($message);
     }
