@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 
 /**
  * @ApiResource(
@@ -46,6 +47,7 @@ class LeadStatus
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Lead", mappedBy="status")
      * @Groups({"lead_status_read", "lead_status_write", "lead_status_patch_read", "lead_status_patch_write"})
+     * @ApiSubresource
      */
     private $leads;
 
