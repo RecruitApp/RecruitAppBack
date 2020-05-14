@@ -6,9 +6,21 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     attributes={"security"="is_granted('ROLE_RECRUITER')"},
+ *     collectionOperations={
+ *         "post"={"security"="is_granted('ROLE_RECRUITER')", "security_message"="Only Recruiter can add offers."},
+ *         "get"={"security"="is_granted('ROLE_RECRUITER')"},
+ *     },
+ *     itemOperations={
+ *         "get"={"security"="is_granted('ROLE_RECRUITER') and object.getOwner() == user or is_granted('ROLE_USER')", "security_message"="Sorry, but you are not the offer owner."},
+ *         "put"={"security_post_denormalize"="is_granted('ROLE_RECRUITER') or (object.getOwner() == user and previous_object.getOwner() == user)", "security_post_denormalize_message"="Sorry, but you are not the actual offer owner."},
+ *     }
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\OfferRepository")
  */
 class Offer
@@ -22,16 +34,19 @@ class Offer
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
      */
     private $companyDescription;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
      */
     private $offerDescription;
 
