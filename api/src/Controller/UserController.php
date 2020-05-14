@@ -22,7 +22,7 @@ class UserController
         $this->request = $requestStack->getCurrentRequest();
     }
 
-    public function __invoke(User $data): User
+    public function __invoke(Request $data): User
     {
         $token = $this->request->get('token');
         $user = $this->managerRegistry->getRepository(User::class)->findOneBy(array('token' => $token));
