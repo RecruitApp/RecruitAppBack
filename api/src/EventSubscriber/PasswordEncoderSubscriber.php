@@ -37,5 +37,8 @@ final class PasswordEncoderSubscriber implements EventSubscriberInterface
         /** @var User $object */
         $passwordEncoded = $this->passwordEncoder->encodePassword($object, $object->getPassword());
         $object->setPassword($passwordEncoded);
+
+        $token = bin2hex(random_bytes(16));
+        $object->setToken($token);
     }
 }

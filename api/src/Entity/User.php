@@ -11,7 +11,33 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     itemOperations={
+ *          "get",
+ *          "userValidation" = {
+ *              "method" = "GET",
+ *              "path" = "/verifyAccount/{token}",
+ *              "controller" = UserController::class,
+ *              "defaults" = {"_api_receive" = false},
+ *              "openapi_context" = {
+ *                  "parameters" = {
+ *                      {
+ *                          "name": "token",
+ *                          "in": "path",
+ *                          "type": "string",
+ *                          "required": true
+ *                      }
+ *                  }
+ *              }
+ *          },
+ *          "patch",
+ *          "delete"
+ *     },
+ *     collectionOperations={
+ *         "get",
+ *         "post"
+ *     }
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @ORM\Table(name="`user`")
  */
