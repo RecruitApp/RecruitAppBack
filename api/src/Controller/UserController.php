@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use ApiPlatform\Core\Annotation\ApiRessource;
@@ -35,7 +36,7 @@ class UserController
 
         $user->setIsActive(true);
         $user->setToken(null);
-        $this->managerRegistry->flush();
+        $this->managerRegistry->getManager()->flush();
 
         return $user;
     }
