@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Controller\OfferController;
 
 
 /**
@@ -18,6 +19,23 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     },
  *     itemOperations={
  *         "get"={"security"="is_granted('ROLE_RECRUITER') and object.getOwner() == user or is_granted('ROLE_USER')", "security_message"="Sorry, but you are not the offer owner."},
+ *         "offerValidation" = {
+ *              "method" = "GET",
+ *              "path" = "/verifyOfferParticipant/{token}",
+ *              "controller" = OfferController::class,
+ *              "defaults" = {"_api_receive" = false},
+ *              "security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
+ *              "openapi_context" = {
+ *                  "parameters" = {
+ *                      {
+ *                          "name": "token",
+ *                          "in": "path",
+ *                          "type": "string",
+ *                          "required": true
+ *                      }
+ *                  }
+ *              }
+ *          },
  *         "put"={"security_post_denormalize"="is_granted('ROLE_RECRUITER') or (object.getOwner() == user and previous_object.getOwner() == user)", "security_post_denormalize_message"="Sorry, but you are not the actual offer owner."},
  *     }
  * )
@@ -75,6 +93,11 @@ class Offer
      * @ORM\OneToMany(targetEntity="App\Entity\Proposal", mappedBy="offer", orphanRemoval=true)
      */
     private $proposals;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $token;
 
     public function __construct()
     {
@@ -197,6 +220,18 @@ class Offer
                 $proposal->setOffer(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    public function setToken(?string $token): self
+    {
+        $this->token = $token;
 
         return $this;
     }
