@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Controller\UserController;
 
@@ -74,11 +75,13 @@ class User implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Offer", mappedBy="owner", orphanRemoval=true)
+     * @ApiSubresource
      */
     private $offers;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Lead", mappedBy="applicant")
+     * @ApiSubresource
      */
     private $leads;
 
@@ -101,6 +104,7 @@ class User implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Proposal", mappedBy="applicant", orphanRemoval=true)
+     * @ApiSubresource
      */
     private $proposals;
 

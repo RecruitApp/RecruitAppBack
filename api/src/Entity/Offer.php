@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Controller\OfferController;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 
 
 /**
@@ -91,6 +92,7 @@ class Offer
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Proposal", mappedBy="offer", orphanRemoval=true)
+     * @ApiSubresource
      */
     private $proposals;
 
