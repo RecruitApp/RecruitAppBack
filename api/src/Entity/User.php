@@ -33,7 +33,7 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  *                  }
  *              }
  *          },
- *          "patch",
+ *          "put",
  *          "delete"
  *     },
  *     collectionOperations={
