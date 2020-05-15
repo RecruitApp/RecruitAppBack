@@ -8,10 +8,26 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use ApiPlatform\Core\Annotation\ApiSubresource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 
 /**
- * @ApiResource()
+ *@ApiResource(
+ *      normalizationContext={"groups"={"lead_read"}},
+ *      denormalizationContext={"groups"={"lead_write"}},
+ *      itemOperations={
+ *          "get",
+ *          "patch"={
+ *              "normalization_context"={"groups"={"lead_patch_read"}},
+ *              "denormalization_context"={"groups"={"lead_patch_write"}}
+ *          },
+ *          "delete"
+ *      },
+ *      collectionOperations={
+ *          "get",
+ *          "post"
+ *      }
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\LeadRepository")
  */
 class Lead
@@ -20,57 +36,68 @@ class Lead
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"lead_read", "lead_patch_read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"lead_read", "lead_write", "lead_patch_read", "lead_patch_write"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"lead_read", "lead_write", "lead_patch_read", "lead_patch_write"})
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"lead_read", "lead_write", "lead_patch_read", "lead_patch_write"})
      */
     private $sexe;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"lead_read", "lead_write", "lead_patch_read", "lead_patch_write"})
      */
     private $email;
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups({"lead_read", "lead_write", "lead_patch_read", "lead_patch_write"})
      */
     private $age;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"lead_read", "lead_write", "lead_patch_read", "lead_patch_write"})
      */
     private $address;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @Groups({"lead_read", "lead_write", "lead_patch_read", "lead_patch_write"})
      */
     private $motivation;
 
     /**
      * @ORM\Column(type="float", nullable=true)
+     * @Groups({"lead_read", "lead_write", "lead_patch_read", "lead_patch_write"})
      */
     private $salaryClaim;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\LeadStatus", inversedBy="leads")
      * @ORM\JoinColumn(nullable=true)
+     * @Groups({"lead_read", "lead_write", "lead_patch_read", "lead_patch_write"})
      */
     private $status;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="leads")
+     * @Groups({"lead_read", "lead_write", "lead_patch_read", "lead_patch_write"})
      */
     private $applicant;
 
@@ -80,6 +107,7 @@ class Lead
      * @ORM\ManyToOne(targetEntity=MediaObject::class)
      * @ORM\JoinColumn(nullable=true)
      * @ApiProperty(iri="http://schema.org/image")
+     * @Groups({"lead_read", "lead_write", "lead_patch_read", "lead_patch_write"})
      */
     public $image;
 
@@ -89,6 +117,7 @@ class Lead
      * @ORM\ManyToOne(targetEntity=MediaObject::class)
      * @ORM\JoinColumn(nullable=true)
      * @ApiProperty(iri="http://schema.org/image")
+     * @Groups({"lead_read", "lead_write", "lead_patch_read", "lead_patch_write"})
      */
     public $cv;
 

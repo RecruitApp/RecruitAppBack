@@ -9,7 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Controller\OfferController;
 use ApiPlatform\Core\Annotation\ApiSubresource;
-
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\ExistsFilter;
+use ApiPlatform\Core\Annotation\ApiFilter;
 
 /**
  * @ApiResource(
@@ -38,9 +40,12 @@ use ApiPlatform\Core\Annotation\ApiSubresource;
  *              }
  *          },
  *         "put"={"security_post_denormalize"="is_granted('ROLE_RECRUITER') or (object.getOwner() == user and previous_object.getOwner() == user)", "security_post_denormalize_message"="Sorry, but you are not the actual offer owner."},
- *     }
+ *         "delete"
+ *      }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\OfferRepository")
+ * @ApiFilter(ExistsFilter::class, properties={"owner"})
+ * @ApiFilter(SearchFilter::class, properties={"name": "exact", "offerDescription": "ipartial"})
  */
 class Offer
 {
