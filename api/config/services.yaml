@@ -28,13 +28,13 @@ services:
         arguments: ['@App\Swagger\SwaggerDecorator.inner']
         autoconfigure: false
         
-    App\DataFixtures\Faker\Provider\FooProvider:
-        tags: [ { name: nelmio_alice.faker.provider } ]
-
-    App\DataFixtures\Faker\Provider\PasswordProvider:
+    App\DataFixtures\Faker\Provider\UserProvider:
         tags: [ { name: nelmio_alice.faker.provider } ]
 
     App\DataFixtures\Faker\Provider\ContratTypeProvider:
+        tags: [ { name: nelmio_alice.faker.provider } ]
+
+    App\DataFixtures\Faker\Provider\StatusProvider:
         tags: [ { name: nelmio_alice.faker.provider } ]
 
     # add more service definitions when explicit configuration is needed

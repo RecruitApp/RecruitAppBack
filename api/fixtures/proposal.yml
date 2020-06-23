@@ -1,8 +1,0 @@
-#parameters:
-#pwd: 'ee'
-
-App\Entity\Proposal:
-    proposal_{1..20}:
-        token: <regexify('[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}')>
-        offer: '<numberBetween(1, 30)>x @user_*'
-        applicant: '<numberBetween(1, 20)>x @application_*'

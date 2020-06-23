@@ -7,15 +7,20 @@ App\Entity\User:
         roles: <randomElements(["ROLE_RECRUITER", "ROLE_USER"])>
         password: <encodePwd('password')>
         token: <regexify('[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}')>
-        isActive: <boolean()>
-        offers: '<numberBetween(1, 30)>x @offer_*'
-        applications: '<numberBetween(1, 20)>x @application_*'
+        isActive: <boolean()>   
 
-    user_recruiter:
+    user_recruiter_1:
         email: 'muhammad.tounsi@hotmail.fr'
         roles: ["ROLE_RECRUITER"]
         password: <encodePwd('password')>
         token: <regexify('[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}')>
         isActive: true
-        offers: '<numberBetween(1, 30)>x @offer_*'
-        applications: '<numberBetween(1, 20)>x @application_*'
+
+    user_applicant_1:
+        email: <email()>
+        roles: ["ROLE_USER"]
+        password: <encodePwd('password')>
+        token: <regexify('[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}')>
+        isActive: true
+
+

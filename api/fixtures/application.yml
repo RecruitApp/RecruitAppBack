@@ -4,15 +4,14 @@
 App\Entity\Application:
     application_{1..20}:
         name: <lastName()>
-        firstname: <firstName($gender = null|'male'|'female')>
-        gender: <gender()>
-        photo: <imageUrl($width = 640, $height = 480)>
+        gender: <randomElement(['male', 'female'])>
+        firstname: <firstName($gender = 'male'|'female')>
         email: <email()>
-        age: randomNumber($nbDigits = 2, $strict = false)
-        adress: <address()>
-        motivationField: <text($maxNbChars = 200)>
-        salaryClaim: <numberBetween($min = 1000, $max = 9000)>
-        cv: "null"
-        status: '<numberBetween(1, 30)>x @status_*'
-        offer: '<numberBetween(1, 30)>x @offer_*'
-        applicant: '<numberBetween(1, 20)>x @user_*'
+        age: <numberBetween(18,70)>
+        address: <address()>
+        motivationField: <text()>
+        salaryClaim: <numberBetween(15000,100000)>
+        token: <regexify('[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}')>
+        status: '@status_*'
+        offer: '@offer_*'
+        applicant: '@user_applicant_1'

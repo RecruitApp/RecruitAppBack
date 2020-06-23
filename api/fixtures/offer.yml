@@ -3,11 +3,9 @@
 
 App\Entity\Offer:
     offer_{1..20}:
-        name: <text($maxNbChars = 20)>
-        descriptionCompany: <text($maxNbChars = 200)>
-        description: <text($maxNbChars = 200)>
-        workplace: <text($maxNbChars = 10)>
+        name: <jobTitle()>
+        descriptionCompany: <text()>
+        description: <text()>
+        workplace: <text()>
         typeContract: <RandTypeContrat()>
-        recruiter: '<numberBetween(1, 30)>x @user_recruiter_*'
-        offers: '<numberBetween(1, 30)>x @offer_*'
-        applications: '<numberBetween(1, 20)>x @application_*'
+        recruiter: '@user_recruiter_1'
