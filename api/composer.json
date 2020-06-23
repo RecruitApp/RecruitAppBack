@@ -21,8 +21,15 @@
     },
     "require-dev": {
         "api-platform/schema-generator": "^2.1",
+        "behat/behat": "^3.7",
+        "behatch/contexts": "^3.3",
+        "dama/doctrine-test-bundle": "^6.3",
+        "friends-of-behat/symfony-extension": "^2.1",
+        "hautelook/alice-bundle": "^2.7",
         "symfony/maker-bundle": "^1.11",
-        "symfony/profiler-pack": "^1.0"
+        "symfony/phpunit-bridge": "^5.1",
+        "symfony/profiler-pack": "^1.0",
+        "symfony/test-pack": "^1.0"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -43,7 +50,10 @@
     "autoload-dev": {
         "psr-4": {
             "App\\Tests\\": "tests/"
-        }
+        },
+        "classmap": [
+            "bin/.phpunit/phpunit-7.5-0/src"
+        ]
     },
     "config": {
         "preferred-install": {
@@ -65,7 +75,7 @@
     },
     "extra": {
         "symfony": {
-            "allow-contrib": false,
+            "allow-contrib": true,
             "require": "5.0.*"
         }
     }

@@ -6,46 +6,66 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
-use App\Controller\OfferController;
-use ApiPlatform\Core\Annotation\ApiSubresource;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\ExistsFilter;
-use ApiPlatform\Core\Annotation\ApiFilter;
+use App\Controller\OffersApplicationsController;
+use App\Controller\GetOwnedOffersController;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 
 /**
  * @ApiResource(
- *     attributes={"security"="is_granted('ROLE_RECRUITER')"},
+ *     normalizationContext={"groups"={"offers_get"}},
  *     collectionOperations={
- *         "post"={"security"="is_granted('ROLE_RECRUITER')", "security_message"="Only Recruiter can add offers."},
- *         "get"={"security"="is_granted('ROLE_RECRUITER')"},
+ *          "get"={
+ *              "security"="is_granted('ROLE_ADMIN')"
+ *          },
+ *          "post"={
+ *              "security"="is_granted('ROLE_RECRUITER')",
+ *          },
+ *          "get_my_offer"={
+ *              "method"="GET",
+ *              "path"="/offers/owned",
+ *              "controller"=GetOwnedOffersController::class,
+ *              "defaults"={"_api_receive"=false}
+ *          }
  *     },
  *     itemOperations={
- *         "get"={"security"="is_granted('ROLE_RECRUITER') and object.getOwner() == user or is_granted('ROLE_USER')", "security_message"="Sorry, but you are not the offer owner."},
- *         "offerValidation" = {
- *              "method" = "GET",
- *              "path" = "/verifyOfferParticipant/{token}",
- *              "controller" = OfferController::class,
- *              "defaults" = {"_api_receive" = false},
- *              "security"="is_granted('IS_AUTHENTICATED_ANONYMOUSLY')",
- *              "openapi_context" = {
- *                  "parameters" = {
+ *          "get"={
+ *              "security"="is_granted('ROLE_RECRUITER') and object.getRecruiter().getId() == user.getId()"
+ *          },
+ *          "patch"={
+ *              "security"="is_granted('ROLE_RECRUITER') and object.getRecruiter().getId() == user.getId()"
+ *          },
+ *          "put"={
+ *              "security"="is_granted('ROLE_RECRUITER') and object.getRecruiter().getId() == user.getId()"
+ *          },
+ *          "delete"={
+ *              "security"="is_granted('ROLE_RECRUITER') and object.getRecruiter().getId() == user.getId()"
+ *          },
+ *          "offers_applications"={
+ *              "method"="PATCH",
+ *              "path"="/offers/{id}/applicants",
+ *              "controller"=OffersApplicationsController::class,
+ *              "defaults"={"_api_receive"=false},
+ *              "openapi_context"= {
+ *                  "parameters"= {
  *                      {
- *                          "name": "token",
+ *                          "name": "id",
  *                          "in": "path",
  *                          "type": "string",
  *                          "required": true
- *                      }
+ *                      },
+ *                      {
+ *                          "name": "applicants",
+ *                          "in": "body",
+ *                          "type": "array",
+ *                          "required": true
+ *                      },
  *                  }
  *              }
- *          },
- *         "put"={"security_post_denormalize"="is_granted('ROLE_RECRUITER') or (object.getOwner() == user and previous_object.getOwner() == user)", "security_post_denormalize_message"="Sorry, but you are not the actual offer owner."},
- *         "delete"
- *      }
+ *          }
+ *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\OfferRepository")
- * @ApiFilter(ExistsFilter::class, properties={"owner"})
- * @ApiFilter(SearchFilter::class, properties={"name": "exact", "offerDescription": "ipartial"})
  */
 class Offer
 {
@@ -53,62 +73,57 @@ class Offer
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"offers_get"})
      */
     private $id;
 
+
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank
+     * @Groups({"applications_get","offers_get"})
      */
     private $name;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank
+     * @ORM\Column(type="text")
+     * @Groups({"applications_get","offers_get"})
      */
-    private $companyDescription;
+    private $descriptionCompany;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank
+     * @Groups({"applications_get","offers_get"})
      */
-    private $offerDescription;
-
-    /**
-     * @ORM\Column(type="date")
-     */
-    private $startDate;
+    private $description;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"applications_get","offers_get"})
      */
-    private $typeOfContract;
+    private $typeContract;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"applications_get","offers_get"})
      */
     private $workplace;
 
     /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Application", mappedBy="offer")
+     * @Groups({"offers_get"})
+     */
+    private $applications;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="offers")
-     * @ORM\JoinColumn(nullable=false)
+     * @Groups({"offers_get"})
      */
-    private $owner;
+    private $recruiter;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Proposal", mappedBy="offer", orphanRemoval=true)
-     * @ApiSubresource
-     */
-    private $proposals;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $token;
 
     public function __construct()
     {
-        $this->proposals = new ArrayCollection();
+        $this->applications = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -128,50 +143,38 @@ class Offer
         return $this;
     }
 
-    public function getCompanyDescription(): ?string
+    public function getDescriptionCompany(): ?string
     {
-        return $this->companyDescription;
+        return $this->descriptionCompany;
     }
 
-    public function setCompanyDescription(string $companyDescription): self
+    public function setDescriptionCompany(string $descriptionCompany): self
     {
-        $this->companyDescription = $companyDescription;
+        $this->descriptionCompany = $descriptionCompany;
 
         return $this;
     }
 
-    public function getOfferDescription(): ?string
+    public function getDescription(): ?string
     {
-        return $this->offerDescription;
+        return $this->description;
     }
 
-    public function setOfferDescription(string $offerDescription): self
+    public function setDescription(string $description): self
     {
-        $this->offerDescription = $offerDescription;
+        $this->description = $description;
 
         return $this;
     }
 
-    public function getStartDate(): ?\DateTimeInterface
+    public function getTypeContract(): ?string
     {
-        return $this->startDate;
+        return $this->typeContract;
     }
 
-    public function setStartDate(\DateTimeInterface $startDate): self
+    public function setTypeContract(string $typeContract): self
     {
-        $this->startDate = $startDate;
-
-        return $this;
-    }
-
-    public function getTypeOfContract(): ?string
-    {
-        return $this->typeOfContract;
-    }
-
-    public function setTypeOfContract(string $typeOfContract): self
-    {
-        $this->typeOfContract = $typeOfContract;
+        $this->typeContract = $typeContract;
 
         return $this;
     }
@@ -188,57 +191,45 @@ class Offer
         return $this;
     }
 
-    public function getOwner(): ?User
-    {
-        return $this->owner;
-    }
-
-    public function setOwner(?User $owner): self
-    {
-        $this->owner = $owner;
-
-        return $this;
-    }
-
     /**
-     * @return Collection|Proposal[]
+     * @return Collection|Application[]
      */
-    public function getProposals(): Collection
+    public function getApplications(): Collection
     {
-        return $this->proposals;
+        return $this->applications;
     }
 
-    public function addProposal(Proposal $proposal): self
+    public function addApplication(Application $application): self
     {
-        if (!$this->proposals->contains($proposal)) {
-            $this->proposals[] = $proposal;
-            $proposal->setOffer($this);
+        if (!$this->applications->contains($application)) {
+            $this->applications[] = $application;
+            $application->setOffer($this);
         }
 
         return $this;
     }
 
-    public function removeProposal(Proposal $proposal): self
+    public function removeApplication(Application $application): self
     {
-        if ($this->proposals->contains($proposal)) {
-            $this->proposals->removeElement($proposal);
+        if ($this->applications->contains($application)) {
+            $this->applications->removeElement($application);
             // set the owning side to null (unless already changed)
-            if ($proposal->getOffer() === $this) {
-                $proposal->setOffer(null);
+            if ($application->getOffer() === $this) {
+                $application->setOffer(null);
             }
         }
 
         return $this;
     }
 
-    public function getToken(): ?string
+    public function getRecruiter(): ?User
     {
-        return $this->token;
+        return $this->recruiter;
     }
 
-    public function setToken(?string $token): self
+    public function setRecruiter(?User $recruiter): self
     {
-        $this->token = $token;
+        $this->recruiter = $recruiter;
 
         return $this;
     }

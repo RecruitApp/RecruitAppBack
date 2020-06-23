@@ -7,23 +7,37 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
-use ApiPlatform\Core\Annotation\ApiSubresource;
+use App\Controller\UserValidationController;
+use App\Controller\ProfileUserController;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Controller\UserController;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Core\Annotation\ApiFilter;
 
 /**
  * @ApiResource(
+ *     normalizationContext={"groups"={"users_get"}},
  *     itemOperations={
- *          "get",
- *          "userValidation" = {
- *              "method" = "GET",
- *              "path" = "/verifyAccount/{token}",
- *              "controller" = UserController::class,
- *              "defaults" = {"_api_receive" = false},
- *              "openapi_context" = {
- *                  "parameters" = {
+ *          "get"={
+ *              "security"="is_granted('ROLE_USER') and object.getId() == user.getId()",
+ *          },
+ *          "patch"={
+ *              "security"="is_granted('ROLE_USER') and object.getId() == user.getId()",
+ *          },
+ *          "put"={
+ *              "security"="is_granted('ROLE_USER') and object.getId() == user.getId()",
+ *          },
+ *     },
+ *     collectionOperations={
+ *          "get"={
+ *              "security"="is_granted('ROLE_ADMIN')"
+ *          },
+ *          "post",
+ *          "check_user"={
+ *              "method"="GET",
+ *              "path"="/users/validation/{token}",
+ *              "controller"=UserValidationController::class,
+ *              "defaults"={"_api_receive"=false},
+ *              "openapi_context"= {
+ *                  "parameters"= {
  *                      {
  *                          "name": "token",
  *                          "in": "path",
@@ -33,16 +47,14 @@ use ApiPlatform\Core\Annotation\ApiFilter;
  *                  }
  *              }
  *          },
- *          "put",
- *          "delete"
- *     },
- *     collectionOperations={
- *         "get",
- *         "post"
+ *         "profile"={
+ *              "method"="GET",
+ *              "path"="/users/profile",
+ *              "controller"=ProfileUserController::class
+ *          }
  *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- * @ApiFilter(SearchFilter::class, properties={"email": "exact"})
  * @ORM\Table(name="`user`")
  */
 class User implements UserInterface
@@ -56,9 +68,8 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Assert\Email(
-     *     message = "The email '{{ value }}' is not a valid email."
-     * )
+     * @Assert\Email()
+     * @Groups({"users_get"})
      */
     private $email;
 
@@ -70,56 +81,35 @@ class User implements UserInterface
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
-     * @Assert\NotBlank
-     * @Assert\Length(min=6)
      */
     private $password;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Offer", mappedBy="owner", orphanRemoval=true)
-     * @ApiSubresource
+     * @ORM\Column(type="string", nullable=true)
      */
-    private $offers;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Lead", mappedBy="applicant")
-     * @ApiSubresource
-     */
-    private $leads;
+    private $token;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $isActive = false;
+    private $isActive;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank
+     * @ORM\OneToMany(targetEntity="App\Entity\Offer", mappedBy="recruiter")
      */
-    private $firstname;
+    private $offers;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank
+     * @ORM\OneToMany(targetEntity="App\Entity\Application", mappedBy="applicant")
      */
-    private $lastname;
+    private $applications;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Proposal", mappedBy="applicant", orphanRemoval=true)
-     * @ApiSubresource
-     */
-    private $proposals;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $token;
 
     public function __construct()
     {
+        $this->isActive = false;
         $this->offers = new ArrayCollection();
-        $this->leads = new ArrayCollection();
-        $this->proposals = new ArrayCollection();
+        $this->applications = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -155,6 +145,8 @@ class User implements UserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
     }
@@ -198,131 +190,14 @@ class User implements UserInterface
         // $this->plainPassword = null;
     }
 
-    /**
-     * @return Collection|Offer[]
-     */
-    public function getOffers(): Collection
-    {
-        return $this->offers;
-    }
-
-    public function addOffer(Offer $offer): self
-    {
-        if (!$this->offers->contains($offer)) {
-            $this->offers[] = $offer;
-            $offer->setOwner($this);
-        }
-
-        return $this;
-    }
-
-    public function removeOffer(Offer $offer): self
-    {
-        if ($this->offers->contains($offer)) {
-            $this->offers->removeElement($offer);
-            // set the owning side to null (unless already changed)
-            if ($offer->getOwner() === $this) {
-                $offer->setOwner(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Lead[]
-     */
-    public function getLeads(): Collection
-    {
-        return $this->leads;
-    }
-
-    public function addLead(Lead $lead): self
-    {
-        if (!$this->leads->contains($lead)) {
-            $this->leads[] = $lead;
-            $lead->setApplicant($this);
-        }
-
-        return $this;
-    }
-
-    public function removeLead(Lead $lead): self
-    {
-        if ($this->leads->contains($lead)) {
-            $this->leads->removeElement($lead);
-            // set the owning side to null (unless already changed)
-            if ($lead->getApplicant() === $this) {
-                $lead->setApplicant(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function getIsActive(): ?bool
     {
         return $this->isActive;
     }
 
-    public function setIsActive(?bool $isActive): self
+    public function setIsActive(bool $isActive): self
     {
         $this->isActive = $isActive;
-
-        return $this;
-    }
-
-    public function getFirstname(): ?string
-    {
-        return $this->firstname;
-    }
-
-    public function setFirstname(string $firstname): self
-    {
-        $this->firstname = $firstname;
-
-        return $this;
-    }
-
-    public function getLastname(): ?string
-    {
-        return $this->lastname;
-    }
-
-    public function setLastname(string $lastname): self
-    {
-        $this->lastname = $lastname;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Proposal[]
-     */
-    public function getProposals(): Collection
-    {
-        return $this->proposals;
-    }
-
-    public function addProposal(Proposal $proposal): self
-    {
-        if (!$this->proposals->contains($proposal)) {
-            $this->proposals[] = $proposal;
-            $proposal->setApplicant($this);
-        }
-
-        return $this;
-    }
-
-    public function removeProposal(Proposal $proposal): self
-    {
-        if ($this->proposals->contains($proposal)) {
-            $this->proposals->removeElement($proposal);
-            // set the owning side to null (unless already changed)
-            if ($proposal->getApplicant() === $this) {
-                $proposal->setApplicant(null);
-            }
-        }
 
         return $this;
     }
@@ -335,6 +210,68 @@ class User implements UserInterface
     public function setToken(?string $token): self
     {
         $this->token = $token;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Offer[]
+     */
+    public function getOffers(): Collection
+    {
+        return $this->offers;
+    }
+
+    public function addOffer(Offer $offer): self
+    {
+        if (!$this->offers->contains($offer)) {
+            $this->offers[] = $offer;
+            $offer->setRecruiter($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOffer(Offer $offer): self
+    {
+        if ($this->offers->contains($offer)) {
+            $this->offers->removeElement($offer);
+            // set the owning side to null (unless already changed)
+            if ($offer->getRecruiter() === $this) {
+                $offer->setRecruiter(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Application[]
+     */
+    public function getApplications(): Collection
+    {
+        return $this->applications;
+    }
+
+    public function addApplication(Application $application): self
+    {
+        if (!$this->applications->contains($application)) {
+            $this->applications[] = $application;
+            $application->setApplicant($this);
+        }
+
+        return $this;
+    }
+
+    public function removeApplication(Application $application): self
+    {
+        if ($this->applications->contains($application)) {
+            $this->applications->removeElement($application);
+            // set the owning side to null (unless already changed)
+            if ($application->getApplicant() === $this) {
+                $application->setApplicant(null);
+            }
+        }
 
         return $this;
     }

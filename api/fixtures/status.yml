@@ -1,0 +1,7 @@
+#parameters:
+#pwd: 'ee'
+
+App\Entity\Status:
+    status_{1..20}:
+        name: <randomElements("initiée", "En cours", "finie")>
+        applicantions: '<numberBetween(1, 20)>x @application_*'

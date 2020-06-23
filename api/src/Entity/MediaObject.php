@@ -1,11 +1,10 @@
 <?php
-// api/src/Entity/MediaObject.php
 
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Controller\CreateMediaObjectAction;
+use App\Controller\CreateMediaObjectController;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -21,7 +20,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  *     },
  *     collectionOperations={
  *         "post"={
- *             "controller"=CreateMediaObjectAction::class,
+ *             "controller"=CreateMediaObjectController::class,
  *             "deserialize"=false,
  *             "security"="is_granted('ROLE_USER')",
  *             "validation_groups"={"Default", "media_object_create"},
