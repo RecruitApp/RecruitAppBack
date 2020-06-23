@@ -1,6 +1,6 @@
 Feature: _User_
   Background:
-    Given the following fixtures files are loaded
+    Given the following fixtures files are loaded:
       | user     |
   Scenario: Get collection
     Given I request "GET /users"
