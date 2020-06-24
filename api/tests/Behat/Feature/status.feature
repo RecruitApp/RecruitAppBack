@@ -3,6 +3,7 @@ Feature: _Status_
     Given the following fixtures files are loaded:
       | user     |
       | status     |
+
   Scenario: Get collection Status user connected
     Given I have the payload
     """
@@ -15,9 +16,11 @@ Feature: _Status_
     Given I request "GET /statuses"
     And the response status code should be 200
     Then print last response
+
   Scenario: Get collection Status user not connected
     Given I request "GET /statuses"
     And the response status code should be 401
+
   Scenario: Post Status with user connected
     Given I have the payload
     """

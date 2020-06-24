@@ -31,12 +31,8 @@ Feature: _Offer_
   Scenario: Get collection
     Given I request "GET /offers"
     And the response status code should be 401
-    #And the "hydra:totalItems" property should be an integer equalling "0"
-    #And scope into the "hydra:search" property
-    #And the "hydra:mapping" property should be an integer
-    #And reset scope
-    #Then print last response
-  Scenario: Get collection 2
+
+  Scenario: Get collection Offers with user connected
     Given I have the payload
     """
     {
@@ -47,3 +43,8 @@ Feature: _Offer_
     Given I authenticate with user
     Given I request "GET /offers"
     And the response status code should be 200
+    And the "hydra:totalItems" property should be an integer equalling "20"
+    And scope into the "hydra:search" property
+    And the "hydra:mapping" property should be an integer
+    And reset scope
+    Then print last response
