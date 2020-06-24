@@ -27,6 +27,7 @@ Feature: _Status_
     }
     """
     Given I authenticate with user
+    Given I have the payload
     """
     {
         "name": "Créée"
