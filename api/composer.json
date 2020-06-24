@@ -1,7 +1,7 @@
 {
     "license": "MIT",
     "require": {
-        "php": "^7.2.5",
+        "php": "^7.3",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "api-platform/api-pack": "^1.1",
@@ -29,7 +29,8 @@
         "symfony/maker-bundle": "^1.11",
         "symfony/phpunit-bridge": "^5.1",
         "symfony/profiler-pack": "^1.0",
-        "symfony/test-pack": "^1.0"
+        "symfony/test-pack": "^1.0",
+        "ext-json": "*"
     },
     "conflict": {
         "symfony/symfony": "*"

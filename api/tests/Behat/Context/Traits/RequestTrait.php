@@ -69,6 +69,7 @@ trait RequestTrait
 
         if($this->token) {
             $options = ['Authorization' => ['Bearer ' . $this->token]];
+            $this->iSetTheHeaderToBe('Authorization', 'Bearer '.$this->token);
         }
 
         $this->lastRequest = new Request(
@@ -154,7 +155,7 @@ trait RequestTrait
      * @return \Symfony\Contracts\HttpClient\ResponseInterface
      * @throws \Exception
      */
-    protected function getLastResponse()
+    public function getLastResponse()
     {
         if (! $this->lastResponse) {
             throw new \Exception("You must first make a request to check a response.");
