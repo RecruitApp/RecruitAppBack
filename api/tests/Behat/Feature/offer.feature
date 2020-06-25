@@ -48,3 +48,7 @@ Feature: _Offer_
     And the "hydra:mapping" property should be an integer
     And reset scope
     Then print last response
+
+  Scenario: Get collection 3
+    Given I request "GET /offers/[offer_1.id]"
+    And the response status code should be 401

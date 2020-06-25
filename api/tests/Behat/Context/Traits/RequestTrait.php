@@ -3,6 +3,7 @@
 namespace App\Tests\Behat\Context\Traits;
 
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\Client;
+use App\Tests\Behat\Manager\ReferenceManager;
 use Behat\Gherkin\Node\PyStringNode;
 use GuzzleHttp\Psr7\Request;
 
@@ -71,6 +72,8 @@ trait RequestTrait
             $options = ['Authorization' => ['Bearer ' . $this->token]];
             $this->iSetTheHeaderToBe('Authorization', 'Bearer '.$this->token);
         }
+
+        $resource = ReferenceManager::getResource($resource);
 
         $this->lastRequest = new Request(
             $httpMethod,
