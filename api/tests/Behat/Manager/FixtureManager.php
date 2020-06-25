@@ -10,6 +10,14 @@ use Symfony\Component\HttpKernel\KernelInterface;
 class FixtureManager implements ProcessorInterface
 {
     /**
+     * Fixture table
+     *
+     * @var array[]
+     */
+    public array $fixtures;
+
+
+    /**
      * @var PersisterLoader
      */
     private $fixtureLoader;
@@ -43,7 +51,7 @@ class FixtureManager implements ProcessorInterface
      */
     public function postProcess(string $fixtureId, $object): void
     {
-        //dump($fixtureId, $object);
-        // do nothing now
+        $this->fixtures[$fixtureId] = $object;
+        //dump($this->fixtures);
     }
 }

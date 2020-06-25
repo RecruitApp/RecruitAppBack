@@ -1,5 +1,4 @@
 <?php
-// api/src/EventSubscriber/ResolveMediaObjectContentUrlSubscriber.php
 
 namespace App\EventSubscriber;
 
